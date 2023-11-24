@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="hokuyo_ust_mount" params="prefix parent topic model:=ust-20 *origin">
+    <joint name="${prefix}_laser_mount_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}" />
+      <child link="${prefix}_laser_mount" />
+    </joint>
+
+    <link name="${prefix}_laser_mount">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <!-- Origin of this mesh is the base of the bracket. -->
+          <mesh filename="package://urg_node/meshes/hokuyo_ust.stl" />
+        </geometry>
+        <material name="dark_grey" />
+      </visual>
+    </link>
+
+    <joint name="${prefix}_laser_joint" type="fixed">
+      <!-- This offset is from the base of the bracket to the LIDAR's focal point. -->
+      <origin xyz="0 0 0.0474" rpy="0 0 0" />
+      <parent link="${prefix}_laser_mount" />
+      <child link="${prefix}_laser" />
+    </joint>
+
+    <xacro:if value="${model == 'ust-10'}"> 
+      <xacro:hokuyo_ust10 frame="${prefix}_laser" topic="${topic}"/>
+    </xacro:if>
+    <xacro:if value="${model == 'ust-20'}"> 
+      <xacro:hokuyo_ust20 frame="${prefix}_laser" topic="${topic}"/>
+    </xacro:if>       
+
+    <!-- <gazebo reference="${prefix}_laser_mount">
+      <material>Gazebo/DarkGrey</material>
+    </gazebo> -->
+
+  </xacro:macro>
+
+
+  <!-- Define Hokuyo models -->
+  <xacro:macro name="hokuyo_ust10" params="frame:=laser topic:=scan sample_size:=720 update_rate:=50 min_angle:=-2.35619 max_angle:=2.35619 min_range:=0.1 max_range:=30.0 robot_namespace:=/">
+    <link name="${frame}">
+      <inertial>
+        <mass value="1.3" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="${0.0833333 * 1.3 * (0.102*0.102 + 0.152*0.152)}" ixy="0.0" ixz="0.0"
+                 iyy="${0.0833333 * 1.3 * (0.105*0.105 + 0.152*0.152)}" iyz="0.0"
+                 izz="${0.0833333 * 1.3 * (0.105*0.105 + 0.102*0.102)}" />
+      </inertial>
+    </link>
+
+    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="50.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}"/>
+
+  </xacro:macro>
+
+  <xacro:macro name="hokuyo_ust20" params="frame:=laser topic:=scan sample_size:=720 update_rate:=50 min_angle:=-2.35619 max_angle:=2.35619 min_range:=0.1 max_range:=60.0 robot_namespace:=/">
+    <link name="${frame}">
+      <inertial>
+        <mass value="1.3" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="${0.0833333 * 1.3 * (0.102*0.102 + 0.152*0.152)}" ixy="0.0" ixz="0.0"
+                 iyy="${0.0833333 * 1.3 * (0.105*0.105 + 0.152*0.152)}" iyz="0.0"
+                 izz="${0.0833333 * 1.3 * (0.105*0.105 + 0.102*0.102)}" />
+      </inertial>
+    </link>
+
+    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="50.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}"/>
+
+  </xacro:macro>
+
+
+  <!-- Gazebo simulation -->
+  <xacro:macro name="hokuyo_laser_gazebo_v0" params="frame topic update_rate sample_size min_angle max_angle min_range max_range">
+      <gazebo reference="${frame}">
+        <turnGravityOff>true</turnGravityOff>
+        <sensor type="ray" name="${frame}">
+          <pose>0 0 0 0 0 0</pose>
+          <visualize>false</visualize>
+          <update_rate>${update_rate}</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>${sample_size}</samples>
+                <resolution>1</resolution>
+                <min_angle>${min_angle}</min_angle>
+                <max_angle>${max_angle}</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>${min_range}</min>
+              <max>${max_range}</max>
+              <resolution>0.01</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.001</stddev>
+            </noise>
+          </ray>
+          <plugin name="gazebo_ros_laser" filename="libgazebo_ros_laser.so">
+            <topicName>${topic}</topicName>
+            <frameName>${frame}</frameName>
+            <!-- <robotNamespace>${robot_namespace}</robotNamespace> -->
+          </plugin>
+        </sensor>
+      </gazebo>
+  </xacro:macro>
+
+</robot>
