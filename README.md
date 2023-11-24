@@ -40,6 +40,7 @@ serial_portのvalueの値を確認する方法
 $ ls -la /dev/ttyACM*
 ```
 ## 参考文献
-- [ROS公式サイト](https://wiki.ros.org/urg_node)
+- [urg_node ROS公式サイト](https://wiki.ros.org/urg_node)
+- [HOKUYOサイト](https://www.hokuyo-aut.co.jp/)
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
