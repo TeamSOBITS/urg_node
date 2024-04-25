@@ -121,6 +121,15 @@ Laser Range-Finders(LRF)を起動するためのレポジトリです．
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
 
+### Publisher
+
+| Topic Name | Type | Meaning |
+| --- | --- | --- |
+| /scan | sensor_msgs/LaserScan | Scan result from URG |
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+
 <!-- マイルストーン -->
 ## マイルストーン
 
