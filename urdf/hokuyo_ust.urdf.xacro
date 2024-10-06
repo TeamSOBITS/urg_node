@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="hokuyo_ust_mount" params="prefix parent topic model:=ust-20 *origin">
+  <xacro:macro name="hokuyo_ust_mount" params="prefix parent topic model:=ust-20 min_angle=-2.35619 max_angle=2.35619 visualize:=false *origin">
     <joint name="${prefix}_laser_mount_joint" type="fixed">
       <xacro:insert_block name="origin" />
       <parent link="${parent}" />
@@ -26,11 +26,11 @@
     </joint>
 
     <xacro:if value="${model == 'ust-10'}"> 
-      <xacro:hokuyo_ust10 frame="${prefix}_laser" topic="${topic}"/>
+      <xacro:hokuyo_ust10 frame="${prefix}_laser" topic="${topic}" min_angle="${min_angle}" max_angle="${max_angle}" visualize="${visualize}" />
     </xacro:if>
     <xacro:if value="${model == 'ust-20'}"> 
-      <xacro:hokuyo_ust20 frame="${prefix}_laser" topic="${topic}"/>
-    </xacro:if>       
+      <xacro:hokuyo_ust20 frame="${prefix}_laser" topic="${topic}" min_angle="${min_angle}" max_angle="${max_angle}" visualize="${visualize}" />
+    </xacro:if>    
 
     <!-- <gazebo reference="${prefix}_laser_mount">
       <material>Gazebo/DarkGrey</material>
@@ -40,7 +40,7 @@
 
 
   <!-- Define Hokuyo models -->
-  <xacro:macro name="hokuyo_ust10" params="frame:=laser topic:=scan sample_size:=720 update_rate:=50 min_angle:=-2.35619 max_angle:=2.35619 min_range:=0.1 max_range:=30.0 robot_namespace:=/">
+  <xacro:macro name="hokuyo_ust10" params="frame:=laser topic:=scan sample_size:=720 update_rate:=1 min_angle:=-2.35619 max_angle:=2.35619 min_range:=0.1 max_range:=10.0 visualize:=false robot_namespace:=/">
     <link name="${frame}">
       <inertial>
         <mass value="1.3" />
@@ -51,11 +51,11 @@
       </inertial>
     </link>
 
-    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="50.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}"/>
+    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="${update_rate}" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}" visualize="${visualize}" />
 
   </xacro:macro>
 
-  <xacro:macro name="hokuyo_ust20" params="frame:=laser topic:=scan sample_size:=720 update_rate:=50 min_angle:=-2.35619 max_angle:=2.35619 min_range:=0.1 max_range:=60.0 robot_namespace:=/">
+  <xacro:macro name="hokuyo_ust20" params="frame:=laser topic:=scan sample_size:=720 update_rate:=1 min_angle:=-2.35619 max_angle:=2.35619 min_range:=0.1 max_range:=20.0 visualize:=false robot_namespace:=/">
     <link name="${frame}">
       <inertial>
         <mass value="1.3" />
@@ -66,18 +66,18 @@
       </inertial>
     </link>
 
-    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="50.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}"/>
+    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="${update_rate}" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}" visualize="${visualize}" />
 
   </xacro:macro>
 
 
   <!-- Gazebo simulation -->
-  <xacro:macro name="hokuyo_laser_gazebo_v0" params="frame topic update_rate sample_size min_angle max_angle min_range max_range">
+  <xacro:macro name="hokuyo_laser_gazebo_v0" params="frame topic update_rate sample_size min_angle max_angle min_range max_range visualize">
       <gazebo reference="${frame}">
         <turnGravityOff>true</turnGravityOff>
         <sensor type="ray" name="${frame}">
           <pose>0 0 0 0 0 0</pose>
-          <visualize>false</visualize>
+          <visualize>${visualize}</visualize>
           <update_rate>${update_rate}</update_rate>
           <ray>
             <scan>
