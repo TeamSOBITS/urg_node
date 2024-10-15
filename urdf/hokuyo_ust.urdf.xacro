@@ -55,7 +55,7 @@
 
   </xacro:macro>
 
-  <xacro:macro name="hokuyo_ust20" params="frame:=laser topic:=scan sample_size:=720 update_rate:=1 min_angle:=-2.35619 max_angle:=2.35619 min_range:=0.1 max_range:=20.0 visualize:=false robot_namespace">
+  <xacro:macro name="hokuyo_ust20" params="frame:=laser topic:=scan sample_size:=720 update_rate:=1 min_angle:=-2.35619 max_angle:=2.35619 min_range:=0.1 max_range:=20.0 visualize:=false robot_namespace:=/">
     <link name="${frame}">
       <inertial>
         <mass value="1.3" />
