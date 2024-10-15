@@ -102,7 +102,7 @@
           <plugin name="gazebo_ros_laser" filename="libgazebo_ros_laser.so">
             <topicName>${topic}</topicName>
             <frameName>${robot_namespace}${frame}</frameName>
-            <robotNamespace>/${robot_namespace}</robotNamespace>
+            <robotNamespace>${robot_namespace}</robotNamespace>
           </plugin>
         </sensor>
       </gazebo>
