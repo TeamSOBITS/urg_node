@@ -69,7 +69,11 @@ install(PROGRAMS scripts/set_urg_ip.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY launch meshes urdf
+install(DIRECTORY
+  launch
+  meshes
+  urdf
+  config
   DESTINATION share/${PROJECT_NAME}
 )
 

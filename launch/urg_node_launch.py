@@ -16,7 +16,7 @@ def generate_launch_description():
     launch_description = LaunchDescription([
         DeclareLaunchArgument(
             'sensor_interface',
-            default_value='serial',
+            default_value='ethernet',
             description='sensor_interface: supported: serial, ethernet')])
 
     def expand_param_file_name(context):
@@ -30,7 +30,7 @@ def generate_launch_description():
     launch_description.add_action(param_file_path)
 
     hokuyo_node = Node(
-        package='urg_node', node_executable='urg_node', output='screen',
+        package='urg_node', executable='urg_node_driver', output='screen',
         parameters=[LaunchConfiguration('param')]
         )
 
