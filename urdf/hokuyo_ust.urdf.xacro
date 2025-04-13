@@ -12,7 +12,7 @@
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
           <!-- Origin of this mesh is the base of the bracket. -->
-          <mesh filename="package://urg_node/meshes/hokuyo_ust.stl" />
+          <mesh filename="file://$(find urg_node)/meshes/hokuyo_ust.stl" />
         </geometry>
         <material name="dark_grey" />
       </visual>
@@ -51,7 +51,7 @@
       </inertial>
     </link>
 
-    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="50.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}"/>
+    <!-- <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="50.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}"/> -->
 
   </xacro:macro>
 
@@ -66,12 +66,12 @@
       </inertial>
     </link>
 
-    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="50.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}"/>
+    <!-- <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="50.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}"/> -->
 
   </xacro:macro>
 
 
-  <!-- Gazebo simulation -->
+  <!-- TODO - Gazebo simulation -->
   <xacro:macro name="hokuyo_laser_gazebo_v0" params="frame topic update_rate sample_size min_angle max_angle min_range max_range">
       <gazebo reference="${frame}">
         <turnGravityOff>true</turnGravityOff>
@@ -102,7 +102,7 @@
           <plugin name="gazebo_ros_laser" filename="libgazebo_ros_laser.so">
             <topicName>${topic}</topicName>
             <frameName>${frame}</frameName>
-            <!-- <robotNamespace>${robot_namespace}</robotNamespace> -->
+            <robotNamespace>${robot_namespace}</robotNamespace>
           </plugin>
         </sensor>
       </gazebo>
