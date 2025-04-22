@@ -470,7 +470,7 @@ bool UrgNode::connect()
     urg_->setAngleLimitsAndCluster(angle_min_, angle_max_, cluster_);
     urg_->setSkip(skip_);
 
-    urg_->setFrameId(laser_frame_id_);
+    urg_->setFrameId((std::string(this->get_namespace()).substr(1) == "") ? (laser_frame_id_) : (std::string(this->get_namespace()).substr(1) + "/" + laser_frame_id_));
     urg_->setUserLatency(default_user_latency_);
 
     return true;
