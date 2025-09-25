@@ -10,8 +10,9 @@ sudo apt-get install -y \
     ros-${ROS_DISTRO}-laser-proc \
     ros-${ROS_DISTRO}-urg-node-msgs \
     ros-${ROS_DISTRO}-rosidl-typesupport-c \
-    ros-${ROS_DISTRO}-diagnostic*
+    ros-${ROS_DISTRO}-diagnostics
 
 sudo groupadd dialout && sudo usermod -aG dialout ${USER}
+
 
 echo "╚══╣ Install: URG Node (FINISHED) ╠══╝"
