@@ -66,7 +66,7 @@
       </inertial>
     </link>
 
-    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="50.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}" robot_namespace="${robot_namespace}"/>
+    <xacro:hokuyo_laser_gazebo_v0 frame="${frame}" topic="${topic}" update_rate="10.0" sample_size="${sample_size}" min_angle="${min_angle}" max_angle="${max_angle}" min_range="${min_range}" max_range="${max_range}" robot_namespace="${robot_namespace}"/>
 
   </xacro:macro>
 
@@ -77,6 +77,7 @@
         <sensor name='${frame}_sensor' type='gpu_lidar'>"
           <pose>0 0 0 0 0 0</pose>
           <gz_frame_id>${robot_name}/${frame}</gz_frame_id>
+          <frame_id>${robot_name}/${frame}</frame_id>
           <topic>${robot_name}/${topic}</topic>
           <update_rate>${update_rate}</update_rate>
           <ray>
