@@ -27,24 +27,37 @@ def generate_launch_description():
 
     launch_description.add_action(namespace_cmd)
     launch_description.add_action(lidar_num_cmd)
-    launch_description.add_action(OpaqueFunction(function = multi_node_launch))
+    launch_description.add_action(OpaqueFunction(function = multi_param_launch))
     return launch_description
+
+
+def multi_param_launch(context, *args, **kwargs):
+    namespace = LaunchConfiguration('namespace').perform(context)
+    lidar_num = LaunchConfiguration('lidar_num').perform(context)
+
+    config_files_cmd = []
+    topic_namespaces_cmd = []
+    for i in range(int(lidar_num)):
+        config_files_cmd += [DeclareLaunchArgument('config_file' + str(i+1), default_value=os.path.join(get_package_share_directory('urg_node'), 'config', "urg_node_multi_ethernet" + str(i+1) + ".yaml"))]
+        topic_namespaces_cmd += [DeclareLaunchArgument('topic_namespace' + str(i+1), default_value="lidar" + str(i+1))]
+
+    return config_files_cmd + topic_namespaces_cmd + [OpaqueFunction(function = multi_node_launch)]
 
 
 def multi_node_launch(context, *args, **kwargs):
     namespace = LaunchConfiguration('namespace').perform(context)
     lidar_num = LaunchConfiguration('lidar_num').perform(context)
 
-    config_files_cmd = []
+    topic_namespaces = []
     for i in range(int(lidar_num)):
-        config_files_cmd += [DeclareLaunchArgument('config_file' + str(i+1), default_value=os.path.join(get_package_share_directory('urg_node'), 'config', "urg_node_multi_ethernet" + str(i+1) + ".yaml"))]
+        topic_namespaces += [LaunchConfiguration('topic_namespace' + str(i+1)).perform(context)]
 
     node_list = []
     for i in range(int(lidar_num)):
         node_list += [Node(
             package='urg_node', namespace=namespace, executable='urg_node_driver', name='urg_node'+str(i+1), output='screen',
-            remappings=[('/' + namespace + '/scan', '/' + namespace + '/scan' + str(i+1))],
+            remappings=[('/' + namespace + '/scan', '/' + namespace + '/' + topic_namespaces[i] + '/scan')],
             parameters=[LaunchConfiguration('config_file' + str(i+1))],
         )]
     
-    return config_files_cmd + node_list
+    return node_list
