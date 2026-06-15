@@ -78,7 +78,7 @@
           <pose>0 0 0 0 0 0</pose>
           <gz_frame_id>${robot_namespace + '/' + frame if enable_tf_prefix else frame}</gz_frame_id>
           <frame_id>${robot_namespace + '/' + frame if enable_tf_prefix else frame}</frame_id>
-          <topic>${robot_namespace + '/' + topic if enable_tf_prefix else topic}</topic>
+          <topic>${robot_namespace + '/' + topic}</topic>
           <update_rate>${update_rate}</update_rate>
           <ray>
             <scan>
