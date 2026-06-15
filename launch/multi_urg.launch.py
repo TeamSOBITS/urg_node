@@ -25,10 +25,20 @@ def generate_launch_description():
         default_value='2'
     )
 
+    enable_tf_prefix_cmd = DeclareLaunchArgument(
+        'enable_tf_prefix',
+        default_value='false'
+    )
+
     launch_description.add_action(namespace_cmd)
     launch_description.add_action(lidar_num_cmd)
+    launch_description.add_action(enable_tf_prefix_cmd)
     launch_description.add_action(OpaqueFunction(function = multi_param_launch))
     return launch_description
+
+
+def _bool(val):
+    return val.lower() in ('true', '1', 'yes')
 
 
 def multi_param_launch(context, *args, **kwargs):
@@ -47,6 +57,7 @@ def multi_param_launch(context, *args, **kwargs):
 def multi_node_launch(context, *args, **kwargs):
     namespace = LaunchConfiguration('namespace').perform(context)
     lidar_num = LaunchConfiguration('lidar_num').perform(context)
+    enable_tf_prefix = _bool(LaunchConfiguration('enable_tf_prefix').perform(context))
 
     topic_namespaces = []
     for i in range(int(lidar_num)):
@@ -54,10 +65,13 @@ def multi_node_launch(context, *args, **kwargs):
 
     node_list = []
     for i in range(int(lidar_num)):
+        params = [LaunchConfiguration('config_file' + str(i+1))]
+        if enable_tf_prefix:
+            params.append({'laser_frame_id': namespace + '/' + topic_namespaces[i] + '_laser'})
         node_list += [Node(
             package='urg_node', namespace=namespace, executable='urg_node_driver', name='urg_node'+str(i+1), output='screen',
             remappings=[('/' + namespace + '/scan', '/' + namespace + '/' + topic_namespaces[i] + '/scan')],
-            parameters=[LaunchConfiguration('config_file' + str(i+1))],
+            parameters=params,
         )]
-    
+
     return node_list
