@@ -162,6 +162,9 @@ private:
   /** The laser tf frame id. */
   std::string laser_frame_id_;
 
+  /** Whether to prefix the frame id with the node namespace. */
+  bool enable_tf_prefix_;
+
   volatile bool service_yield_;
 
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_pub_;

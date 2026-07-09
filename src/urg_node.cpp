@@ -71,6 +71,7 @@ UrgNode::UrgNode(const rclcpp::NodeOptions & node_options)
   skip_(0),
   default_user_latency_(0.0),
   laser_frame_id_("laser"),
+  enable_tf_prefix_(false),
   service_yield_(true)
 {
   (void) synchronize_time_;
@@ -83,6 +84,7 @@ void UrgNode::initSetup()
   ip_address_ = this->declare_parameter<std::string>("ip_address", ip_address_);
   ip_port_ = this->declare_parameter<int>("ip_port", ip_port_);
   laser_frame_id_ = this->declare_parameter<std::string>("laser_frame_id", laser_frame_id_);
+  enable_tf_prefix_ = this->declare_parameter<bool>("enable_tf_prefix", enable_tf_prefix_);
   serial_port_ = this->declare_parameter<std::string>("serial_port", serial_port_);
   serial_baud_ = this->declare_parameter<int>("serial_baud", serial_baud_);
   calibrate_time_ = this->declare_parameter<bool>("calibrate_time", calibrate_time_);
@@ -470,7 +472,12 @@ bool UrgNode::connect()
     urg_->setAngleLimitsAndCluster(angle_min_, angle_max_, cluster_);
     urg_->setSkip(skip_);
 
-    urg_->setFrameId((std::string(this->get_namespace()).substr(1) == "") ? (laser_frame_id_) : (std::string(this->get_namespace()).substr(1) + "/" + laser_frame_id_));
+    std::string ns = std::string(this->get_namespace()).substr(1);
+    if (enable_tf_prefix_ && !ns.empty()) {
+      urg_->setFrameId(ns + "/" + laser_frame_id_);
+    } else {
+      urg_->setFrameId(laser_frame_id_);
+    }
     urg_->setUserLatency(default_user_latency_);
 
     return true;
