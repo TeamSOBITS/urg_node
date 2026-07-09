@@ -162,6 +162,15 @@ private:
   /** The laser tf frame id. */
   std::string laser_frame_id_;
 
+  /** Whether to prefix the frame id with the node namespace. */
+  bool enable_tf_prefix_;
+
+  /** Minimum reported range in meters; <= 0 uses the device minimum. */
+  double dist_min_;
+
+  /** Maximum reported range in meters; <= 0 uses the device maximum. */
+  double dist_max_;
+
   volatile bool service_yield_;
 
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_pub_;
