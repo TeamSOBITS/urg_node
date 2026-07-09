@@ -33,6 +33,7 @@
 
 #include <urg_node/urg_c_wrapper.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <cinttypes>
 #include <limits>
@@ -142,6 +143,8 @@ void URGCWrapper::initialize(bool & using_intensity, bool & using_multiecho)
   last_step_ = 0;
   cluster_ = 1;
   skip_ = 0;
+  user_range_min_ = 0.0;
+  user_range_max_ = 0.0;
 
   hardware_clock_ = 0.0;
   last_hardware_time_stamp_ = 0;
@@ -209,8 +212,10 @@ bool URGCWrapper::grabScan(sensor_msgs::msg::LaserScan & msg)
   msg.angle_increment = getAngleIncrement();
   msg.scan_time = getScanPeriod();
   msg.time_increment = getTimeIncrement();
-  msg.range_min = getRangeMin();
-  msg.range_max = getRangeMax();
+  const double range_min = getEffectiveRangeMin();
+  const double range_max = getEffectiveRangeMax();
+  msg.range_min = range_min;
+  msg.range_max = range_max;
 
   // Grab scan
   int num_beams = 0;
@@ -240,7 +245,16 @@ bool URGCWrapper::grabScan(sensor_msgs::msg::LaserScan & msg)
 
   for (int i = 0; i < num_beams; i++) {
     if (data_[(i) + 0] != 0) {
-      msg.ranges[i] = static_cast<float>(data_[i]) / 1000.0;
+      const float range = static_cast<float>(data_[i]) / 1000.0;
+      // Drop returns outside the configured window (self-collision / noise filtering).
+      if (range < range_min || range > range_max) {
+        msg.ranges[i] = std::numeric_limits<float>::quiet_NaN();
+        if (use_intensity_) {
+          msg.intensities[i] = 0.0;
+        }
+        continue;
+      }
+      msg.ranges[i] = range;
       if (use_intensity_) {
         msg.intensities[i] = intensity_[i];
       }
@@ -260,8 +274,10 @@ bool URGCWrapper::grabScan(sensor_msgs::msg::MultiEchoLaserScan & msg)
   msg.angle_increment = getAngleIncrement();
   msg.scan_time = getScanPeriod();
   msg.time_increment = getTimeIncrement();
-  msg.range_min = getRangeMin();
-  msg.range_max = getRangeMax();
+  const double range_min = getEffectiveRangeMin();
+  const double range_max = getEffectiveRangeMax();
+  msg.range_min = range_min;
+  msg.range_max = range_max;
 
   // Grab scan
   int num_beams = 0;
@@ -299,7 +315,12 @@ bool URGCWrapper::grabScan(sensor_msgs::msg::MultiEchoLaserScan & msg)
     }
     for (size_t j = 0; j < URG_MAX_ECHO; j++) {
       if (data_[(URG_MAX_ECHO * i) + j] != 0) {
-        range_echo.echoes.push_back(static_cast<float>(data_[(URG_MAX_ECHO * i) + j]) / 1000.0f);
+        const float range = static_cast<float>(data_[(URG_MAX_ECHO * i) + j]) / 1000.0f;
+        // Drop echoes outside the configured window (self-collision / noise filtering).
+        if (range < range_min || range > range_max) {
+          continue;
+        }
+        range_echo.echoes.push_back(range);
         if (use_intensity_) {
           intensity_echo.echoes.push_back(intensity_[(URG_MAX_ECHO * i) + j]);
         }
@@ -657,6 +678,26 @@ double URGCWrapper::getRangeMax() const
   return static_cast<double>(maxr) / 1000.0;
 }
 
+double URGCWrapper::getEffectiveRangeMin() const
+{
+  const double device_min = getRangeMin();
+  // Only tighten the window; never report below the physical device minimum.
+  if (user_range_min_ > 0.0) {
+    return std::max(device_min, user_range_min_);
+  }
+  return device_min;
+}
+
+double URGCWrapper::getEffectiveRangeMax() const
+{
+  const double device_max = getRangeMax();
+  // Only tighten the window; never report above the physical device maximum.
+  if (user_range_max_ > 0.0) {
+    return std::min(device_max, user_range_max_);
+  }
+  return device_max;
+}
+
 double URGCWrapper::getAngleMin() const
 {
   return urg_step2rad(&urg_, first_step_);
@@ -785,6 +826,12 @@ void URGCWrapper::setFrameId(const std::string & frame_id)
 void URGCWrapper::setUserLatency(const double latency)
 {
   user_latency_ = rclcpp::Duration(std::chrono::duration<double>(latency));
+}
+
+void URGCWrapper::setRangeLimits(const double range_min, const double range_max)
+{
+  user_range_min_ = range_min;
+  user_range_max_ = range_max;
 }
 
 // Must be called before urg_start

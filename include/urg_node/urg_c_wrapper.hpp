@@ -173,6 +173,20 @@ public:
 
   void setUserLatency(const double latency);
 
+  /**
+   * @brief Restrict the reported range window used for filtering scans.
+   *
+   * Readings outside [range_min, range_max] are replaced with NaN and the
+   * published range_min/range_max fields are updated accordingly. This is
+   * useful for rejecting near-field self-collision returns or far-field noise.
+   * A non-positive value leaves the corresponding device default in place.
+   * The user-provided limits are always clamped to the physical device limits.
+   *
+   * @param range_min Minimum valid range in meters, or <= 0 to use the device minimum.
+   * @param range_max Maximum valid range in meters, or <= 0 to use the device maximum.
+   */
+  void setRangeLimits(const double range_min, const double range_max);
+
   bool setAngleLimitsAndCluster(double & angle_min, double & angle_max, int cluster);
 
   void setSkip(int skip);
@@ -195,6 +209,12 @@ private:
   bool isMultiEchoSupported();
 
   rclcpp::Duration getAngularTimeOffset() const;
+
+  /// Effective minimum range in meters (device minimum, tightened by the user limit).
+  double getEffectiveRangeMin() const;
+
+  /// Effective maximum range in meters (device maximum, tightened by the user limit).
+  double getEffectiveRangeMax() const;
 
   rclcpp::Duration getNativeClockOffset(size_t num_measurements);
 
@@ -245,6 +265,10 @@ private:
   int last_step_;
   int cluster_;
   int skip_;
+
+  /// User-requested range window in meters; <= 0 means "use the device limit".
+  double user_range_min_;
+  double user_range_max_;
 
   rclcpp::Duration system_latency_;
   rclcpp::Duration user_latency_;
